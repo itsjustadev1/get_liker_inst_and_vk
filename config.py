@@ -1,0 +1,6 @@
+userName = ''
+password = ''
+TOKEN = ''
+hashtagInst = 'тыващекрутой'
+hashtagVk = 'глянь'
+access_token = ''

@@ -5,8 +5,9 @@ by itsjustadev
 
 ## get_liker_inst_and_vk
 
-1. Open config.py file and paste in your tokens and passwords
-2. Run the main.py file
+1. Open src folder
+2. Open config.py file and paste in your tokens and passwords
+3. Run the main.py file
 
 ## The main idea
 Its a Telegram bot build for getting likes between people using admin's hashtag

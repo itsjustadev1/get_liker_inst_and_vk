@@ -12,7 +12,7 @@ from states import SocialNetwork
 from config import TOKEN, access_token
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from instagram.searchPostsInst import searchPosts
+from instagram.searchPostsInst import try_searchPosts, searchPosts
 from instagram.getLikersInst import getLikers
 from instagram.getHeaders import gettingHeaders
 from vk.getLikersVKfinal import tryGettingPage, getPostsToLike, translateToID
@@ -138,6 +138,8 @@ async def process_start_command(message: types.Message):
     await bot.send_message(message.from_user.id, message_to_send)
 
 # for instagram
+
+
 @dp.message_handler(state=SocialNetwork.STATE2)
 async def process_start_command(message: types.Message):
     state = dp.current_state(user=message.from_user.id)
@@ -145,7 +147,13 @@ async def process_start_command(message: types.Message):
     await bot.send_message(message.from_user.id, message_to_send)
     username = message.text
     postsToLike = []
-    arrayOfPosts = searchPosts(hashtag=hashtagInst)
+    catch_error = try_searchPosts(hashtag=hashtagInst)
+    if catch_error != 'error':
+        arrayOfPosts = searchPosts(hashtag=hashtagInst)
+    else:
+        message_to_send = 'потребуется чуть больше времени(около 1мин), мне необходимо обновить headers'
+        await bot.send_message(message.from_user.id, message_to_send)
+        arrayOfPosts = searchPosts(hashtag=hashtagInst)
     for element in arrayOfPosts:
         arrayOfLikers = getLikers(element[0])
         if username in arrayOfLikers:

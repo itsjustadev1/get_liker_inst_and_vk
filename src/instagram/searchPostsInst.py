@@ -50,3 +50,13 @@ def searchPosts(hashtag):
                 result.append([id, link])
         object = res['data']['recent']
     return result
+
+
+def try_searchPosts(hashtag):
+    headers_get = headers.headersChrome
+    res = session.get(
+        f'https://www.instagram.com/api/v1/tags/web_info/?tag_name={hashtag}', headers=headers_get)
+    try:
+        res = json.loads(res.text)
+    except:
+        return ('error')

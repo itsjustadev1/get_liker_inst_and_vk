@@ -14,7 +14,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from instagram.searchPostsInst import searchPosts
 from instagram.getLikersInst import getLikers
-from getHeaders import gettingHeaders
+from instagram.getHeaders import gettingHeaders
 from vk.getLikersVKfinal import tryGettingPage, getPostsToLike, translateToID
 from config import hashtagInst, hashtagVk
 
@@ -66,10 +66,11 @@ async def process_start_command(message: types.Message):
 
 @dp.message_handler(commands=['vk'])
 async def process_start_command(message: types.Message):
+    message_to_send = "напишите id или короткое имя аккаунта vk, с которого будете лайкать посты участников\nПример: myshortname"
     await SocialNetwork.STATE1.set()
-    await bot.send_message(message.from_user.id, "напишите id или короткое имя аккаунта vk, с которого будете лайкать посты участников\nПример: myshortname")
+    await bot.send_message(message.from_user.id, message_to_send)
 
-# for Vk.com
+# for vk.com
 
 
 @dp.message_handler(state=SocialNetwork.STATE1)
@@ -77,36 +78,51 @@ async def process_start_command(message: types.Message):
     state = dp.current_state(user=message.from_user.id)
 # обработка случая с числовым id
     if message.text.isdigit():
-        await bot.send_message(message.from_user.id, 'подожди чуть-чуть, пока я проверю этот аккаунт')
+        message_to_send = 'подожди чуть-чуть, пока я проверю этот аккаунт'
+        await bot.send_message(message.from_user.id, message_to_send)
         userObj = tryGettingPage(message.text, access_token)
         if len(userObj['response']) == 0:
-            await bot.send_message(message.from_user.id, encode("пришлите, пожалуйста, ваш действующий id :no_mouth:\nмне нужны только его цифры, либо ваше короткое имя без @"))
+            message_to_send = encode(
+                "пришлите, пожалуйста, ваш действующий id :no_mouth:\nмне нужны только его цифры, либо ваше короткое имя без @")
+            await bot.send_message(message.from_user.id, message_to_send)
         elif userObj['response'][0]['first_name'] == 'DELETED':
-            await bot.send_message(message.from_user.id, encode("пришлите, пожалуйста, ваш действующий id :no_mouth:\nмне нужны только его цифры, либо ваше короткое имя без @"))
+            message_to_send = encode(
+                "пришлите, пожалуйста, ваш действующий id :no_mouth:\nмне нужны только его цифры, либо ваше короткое имя без @")
+            await bot.send_message(message.from_user.id, message_to_send)
         else:
             arrayOfPosts = getPostsToLike(int(message.text))
             if len(arrayOfPosts) == 0:
-                await bot.send_message(message.from_user.id, encode(f"все пролайкано! :white_check_mark:\nдержи тэг: #{hashtagVk}\nрекомендую добавить и другие тэги(#лайки #новое #взаимно #абсолютно #классный),чтобы нечестные пользователи не получали лайки ничего не лайкнув:innocent:"))
+                message_to_send = encode(
+                    f"все пролайкано! :white_check_mark:\nдержи тэг: #{hashtagVk}\nрекомендую добавить и другие тэги(#лайки #новое #взаимно #абсолютно #классный),чтобы нечестные пользователи не получали лайки ничего не лайкнув:innocent:")
+                await bot.send_message(message.from_user.id, message_to_send)
                 await state.reset_state()
             else:
-                await bot.send_message(message.from_user.id, f"пролайкай следующие посты и я дам тэг, с которым ты получишь лайки!")
+                message_to_send = f"пролайкай следующие посты и я дам тэг, с которым ты получишь лайки!"
+                await bot.send_message(message.from_user.id, message_to_send)
                 a = ""
                 for element in arrayOfPosts:
                     a += f"{element}\n"
                 await bot.send_message(message.from_user.id, a, disable_web_page_preview=True)
                 await state.reset_state()
     else:
-        await bot.send_message(message.from_user.id, 'подожди чуть-чуть, пока я проверю этот аккаунт')
+        message_to_send = 'подожди чуть-чуть, пока я проверю этот аккаунт'
+        await bot.send_message(message.from_user.id, message_to_send)
 # обработка случая с коротким именем пользователя
         id = translateToID(message.text, access_token)
         if id == None:
-            await bot.send_message(message.from_user.id, encode("пришлите, пожалуйста, ваш действующий id :no_mouth:\nмне нужны только его цифры, либо ваше короткое имя без @"))
+            message_to_send = encode(
+                "пришлите, пожалуйста, ваш действующий id :no_mouth:\nмне нужны только его цифры, либо ваше короткое имя без @")
+            await bot.send_message(message.from_user.id, message_to_send)
         else:
             arrayOfPosts = getPostsToLike(int(id))
             if len(arrayOfPosts) == 0:
-                await bot.send_message(message.from_user.id, encode(f"все пролайкано! :white_check_mark:\nдержи тэг: #{hashtagVk}\nрекомендую добавить и другие тэги(#лайки #новое #взаимно #абсолютно #классный),чтобы нечестные пользователи не получали лайки ничего не лайкнув:innocent:"))
+                message_to_send = encode(
+                    f"все пролайкано! :white_check_mark:\nдержи тэг: #{hashtagVk}\nрекомендую добавить и другие тэги(#лайки #новое #взаимно #абсолютно #классный),чтобы нечестные пользователи не получали лайки ничего не лайкнув:innocent:")
+                await bot.send_message(message.from_user.id, message_to_send)
             else:
-                await bot.send_message(message.from_user.id, encode(f"пролайкай следующие посты и я дам тэг :trophy:, с которым ты получишь лайки!"))
+                message_to_send = encode(
+                    f"пролайкай следующие посты и я дам хэштэг :trophy:, с которым ты получишь лайки!")
+                await bot.send_message(message.from_user.id, message_to_send)
                 a = ""
                 for element in arrayOfPosts:
                     a += f"{element}\n"
@@ -118,15 +134,15 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands=['inst'])
 async def process_start_command(message: types.Message):
     await SocialNetwork.STATE2.set()
-    await bot.send_message(message.from_user.id, "напишите свой ник instagram аккаунта, с которого будете лайкать посты участников\nПример: myshortname")
+    message_to_send = "напишите свой ник instagram аккаунта, с которого будете лайкать посты участников\nПример: myshortname"
+    await bot.send_message(message.from_user.id, message_to_send)
 
 # for instagram
-
-
 @dp.message_handler(state=SocialNetwork.STATE2)
 async def process_start_command(message: types.Message):
     state = dp.current_state(user=message.from_user.id)
-    await bot.send_message(message.from_user.id, 'подожди чуть-чуть, пока я проверю этот аккаунт')
+    message_to_send = 'подожди чуть-чуть, пока я проверю этот аккаунт'
+    await bot.send_message(message.from_user.id, message_to_send)
     username = message.text
     postsToLike = []
     arrayOfPosts = searchPosts(hashtag=hashtagInst)
@@ -137,23 +153,27 @@ async def process_start_command(message: types.Message):
         else:
             postsToLike.append(element[1])
     if len(postsToLike):
-        await bot.send_message(message.from_user.id, encode(f"пролайкай следующие посты и я дам хэштэг :trophy:, с которым ты получишь лайки!"))
+        message_to_send = encode(
+            f"пролайкай следующие посты и я дам хэштэг :trophy:, с которым ты получишь лайки!")
+        await bot.send_message(message.from_user.id, message_to_send)
         answerString = ''
         for el in postsToLike:
             answerString += el + '\n'
         await bot.send_message(message.from_user.id, answerString, disable_web_page_preview=True)
     else:
-        await bot.send_message(message.from_user.id, encode(f"все пролайкано! :white_check_mark:\nдержи тэг: #{hashtagInst}\nрекомендую добавить и другие тэги(#лайки #новое #взаимно #абсолютно #классный),чтобы нечестные пользователи не получали лайки ничего не лайкнув:innocent:"))
+        message_to_send = encode(
+            f"все пролайкано! :white_check_mark:\nдержи тэг: #{hashtagInst}\nрекомендую добавить и другие тэги(#лайки #новое #взаимно #абсолютно #классный),чтобы нечестные пользователи не получали лайки ничего не лайкнув:innocent:")
+        await bot.send_message(message.from_user.id, message_to_send)
     await state.reset_state()
 #
+
+# for Admin
 
 
 @dp.message_handler(commands=['admin101'])
 async def process_start_command(message: types.Message):
     await SocialNetwork.STATE3.set()
     await message.reply("вы в режиме админа, выберите соцсеть для которой будете устанавливать хэштэг", reply_markup=network_choice)
-
-# for admin
 
 
 @dp.message_handler(state=SocialNetwork.STATE3)
@@ -171,9 +191,8 @@ async def process_start_command(message: types.Message):
     else:
         await state.reset_state()
         await message.reply("попробуйте снова", reply_markup=greet_kb)
-
 #
-# change hashtag vk
+# Admin changing hashtag vk
 
 
 @dp.message_handler(state=SocialNetwork.STATE4)
@@ -184,7 +203,7 @@ async def process_start_command(message: types.Message):
     await message.reply(f"вы успешно сменили хэштэг на {message.text} для вк", reply_markup=greet_kb)
     await state.reset_state()
 #
-# changing hashtag inst
+# Admin changing hashtag inst
 
 
 @dp.message_handler(state=SocialNetwork.STATE5)

@@ -4,6 +4,7 @@ from config import userName, password
 import time
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
+from . import headers
 
 
 def gettingHeaders(hashtag):
@@ -29,7 +30,7 @@ def gettingHeaders(hashtag):
     for request in driver.requests:
         if request.response and "instagram.com/api/v1/tags/web_info/?tag_name" in request.url and flag != 1:
             flag = 1
-            with open('headers.py', 'w') as f:
+            with open('instagram/headers.py', 'w') as f:
                 f.write('headersChrome = {\n')
                 for header in request.headers:
                     header_answ = str(request.headers[f'{header}'])
@@ -38,6 +39,4 @@ def gettingHeaders(hashtag):
                 f.write('}')
         elif flag == 1:
             break
-        else:
-            print("Exception: error with finding Headers in requests")
     driver.quit()

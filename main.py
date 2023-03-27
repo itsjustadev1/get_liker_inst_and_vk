@@ -69,7 +69,7 @@ async def process_start_command(message: types.Message):
     await SocialNetwork.STATE1.set()
     await bot.send_message(message.from_user.id, "напишите id или короткое имя аккаунта vk, с которого будете лайкать посты участников\nПример: myshortname")
 
-# for Vk.com ###
+# for Vk.com
 
 
 @dp.message_handler(state=SocialNetwork.STATE1)
@@ -120,7 +120,7 @@ async def process_start_command(message: types.Message):
     await SocialNetwork.STATE2.set()
     await bot.send_message(message.from_user.id, "напишите свой ник instagram аккаунта, с которого будете лайкать посты участников\nПример: myshortname")
 
-# for instagram ###
+# for instagram
 
 
 @dp.message_handler(state=SocialNetwork.STATE2)
@@ -153,7 +153,7 @@ async def process_start_command(message: types.Message):
     await SocialNetwork.STATE3.set()
     await message.reply("вы в режиме админа, выберите соцсеть для которой будете устанавливать хэштэг", reply_markup=network_choice)
 
-# for admin ###
+# for admin
 
 
 @dp.message_handler(state=SocialNetwork.STATE3)
